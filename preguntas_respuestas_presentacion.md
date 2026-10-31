@@ -24,13 +24,17 @@ maximizar su propio resultado frente al otro.
 ### 3. ¿Cómo ejecuto el programa?
 
 Desde una terminal abierta en la carpeta del proyecto, en Windows se ejecuta
-`py main.py` o `python main.py`; en macOS/Linux, `python3 main.py`. No se
-requieren paquetes externos. El paso a paso está en el [README](./README.md).
+`py interfaz.py` para la interfaz gráfica o `py main.py` para la consola.
+También se puede usar `python` en lugar de `py`; en macOS/Linux, `python3`.
+La interfaz requiere Tkinter y Python 3.10 o posterior. No se requieren
+paquetes de `pip`. El paso a paso está en el [README](./README.md).
 
 ### 4. ¿Qué hace cada módulo principal?
 
 - [main.py](./main.py): muestra los menús, llama al algoritmo seleccionado e
   imprime resultados.
+- [interfaz.py](./interfaz.py): permite ingresar tableros, animar soluciones,
+  comparar resultados y jugar con clics, reutilizando los mismos algoritmos.
 - [estado.py](./estado.py): representa un estado del 8-Puzzle y genera los
   movimientos legales.
 - [algoritmos_no_informados.py](./algoritmos_no_informados.py): implementa
@@ -324,7 +328,8 @@ comprobación previa informa el problema de inmediato.
 
 ### 43. ¿Qué mejorarían si continuaran el proyecto?
 
-Solicitar el tablero al usuario con validación; mejorar el control de estados
+La interfaz gráfica ya permite ingresar el tablero con validación. Como
+mejoras futuras proponemos mejorar el control de estados
 pendientes y costos en las búsquedas; evaluar heurísticas adicionales; dar
 preferencia en Minimax a victorias rápidas y derrotas tardías; y ampliar las
 pruebas a tableros de mayor dificultad con más repeticiones de tiempo y
@@ -350,3 +355,204 @@ profundidad, costo, expansiones y memoria, porque no significan lo mismo.
   de una ejecución instrumentada y dependientes del entorno.
 - Si no conoce un dato, distinga entre lo que garantiza la teoría y lo que se
   midió en los casos del proyecto.
+
+## 8. Guion de exposición según los bloques de la rúbrica
+
+Esta sección responde a los puntos de la tabla compartida: qué explicar y
+qué mostrar durante la presentación. Los bloques 2 a 6 suman **13 minutos**;
+el tiempo del primer bloque no se distingue en el recorte de la imagen.
+Asigna a ese bloque el tiempo que indique la rúbrica completa.
+
+### Bloque 1. Presentación de la aplicación y modelado del problema
+
+**Qué decir:**
+
+> Nuestro proyecto compara búsquedas de un agente y búsqueda adversaria.
+> En el 8-Puzzle representamos el estado con nueve números en una tupla.
+> El cero es el espacio vacío y las acciones mueven ese espacio arriba,
+> abajo, a la izquierda o a la derecha, intercambiándolo con una ficha
+> vecina. La meta es ordenar las fichas del 1 al 8 y dejar el cero al final.
+> En tres en línea participan una persona, con O, y una máquina, con X.
+> Cada acción ocupa una casilla libre. La partida termina cuando hay tres
+> símbolos iguales alineados o cuando el tablero está lleno.
+
+**Qué mostrar:** abre [interfaz.py](./interfaz.py) con `py interfaz.py`,
+señala las dos pestañas y carga el ejemplo **3 movimientos**:
+
+```text
+Inicial                 Meta
+1 | 2 | 3               1 | 2 | 3
+0 | 4 | 5               4 | 5 | 6
+7 | 8 | 6               7 | 8 | 0
+```
+
+Aclara que una entrada debe contener todos los números de 0 a 8 sin repetir.
+Además, se verifica la paridad de las inversiones para rechazar tableros que
+no pueden alcanzar la meta estándar.
+
+### Bloque 2. Demostración en vivo — 4 minutos
+
+**Qué hacer y explicar:**
+
+1. **Entrada y selección:** en la pestaña 8-Puzzle, carga **3 movimientos**,
+   selecciona **BFS** y pulsa **Resolver**.
+2. **Resultados:** señala la fila de BFS: 18 nodos expandidos, 3 movimientos
+   y costo ponderado 10. El tiempo corresponde a la búsqueda, no a la
+   animación ni a la comprobación posterior de la ruta.
+3. **Solución visual:** selecciona la fila y pulsa **Paso** tres veces o
+   **Reproducir**. Explica que el vacío se mueve Derecha, Derecha y Abajo;
+   las fichas 4, 5 y 6 se deslizan en sentido contrario.
+4. **Comparación:** carga **2 movimientos** y pulsa **Comparar los cuatro**.
+   Deja esta tabla disponible para los siguientes bloques. Todos los
+   algoritmos reciben exactamente el mismo tablero.
+5. **Modo adversario:** abre Tres en línea y juega O en el centro.
+   La IA responde con X en la esquina de índice 0. Señala las métricas
+   de búsqueda con y sin poda.
+
+**Frase para acompañar la demostración:**
+
+> La interfaz no reemplaza los algoritmos: reutiliza las funciones del
+> proyecto de consola. Podemos observar tanto la solución como el trabajo
+> necesario para encontrarla. La búsqueda se ejecuta en un hilo de trabajo
+> y el hilo principal actualiza la ventana y la animación.
+
+No reproduzcas rutas DFS enormes durante la exposición. Para mostrar el
+resultado sin recorrer cada paso, selecciona su fila y pulsa **Ver meta**.
+
+### Bloque 3. DFS y BFS — 2 minutos
+
+**Cómo recorren el espacio y qué estructura usan:**
+
+> DFS usa una pila: procesa el último estado agregado y sigue una rama antes
+> de volver a otras alternativas. BFS usa una cola: procesa los estados por
+> niveles de profundidad. Ambos evitan volver a expandir tableros ya
+> explorados, pero BFS también evita duplicados pendientes en la frontera.
+
+**En qué se diferencian sus soluciones:**
+
+> BFS encuentra una solución con el menor número de movimientos. DFS
+> devuelve la primera solución encontrada y no garantiza longitud ni costo
+> mínimos. En el ejemplo de dos movimientos, DFS devuelve 30 movimientos
+> con costo 68; BFS devuelve 2 movimientos con costo 6.
+
+**Qué mostrar:** en la tabla del ejemplo **2 movimientos**, compara:
+
+| Algoritmo | Frontera | Nodos expandidos | Movimientos | Costo ponderado |
+|---|---|---:|---:|---:|
+| DFS | Pila LIFO | 30 | 30 | 68 |
+| BFS | Cola FIFO | 8 | 2 | 6 |
+
+Precisión importante: **encontrar una solución no significa que sea óptima**.
+Tampoco debe confundirse el número de nodos expandidos con la longitud de la
+solución: BFS puede explorar estados que no forman parte del camino final.
+
+### Bloque 4. Costo uniforme y A* — 3 minutos
+
+**Cómo se definieron los costos:**
+
+> Asignamos costos diferentes por dirección: Arriba 1, Abajo 2,
+> Izquierda 3 y Derecha 4. Es una decisión del modelo para distinguir
+> minimizar pasos de minimizar costo. UCS usa una cola de prioridad que
+> selecciona el menor costo acumulado g(n). A* usa una cola de prioridad
+> ordenada por f(n) = g(n) + h(n).
+
+**Qué heurística se utilizó y cómo justificarla:**
+
+> Usamos la distancia Manhattan: sumamos para cada ficha la diferencia
+> de filas y columnas respecto a su posición objetivo, sin contar el cero.
+> En el ejemplo de tres movimientos, las fichas 4, 5 y 6 están cada una
+> a una casilla de su destino, así que h vale 3. La heurística es
+> admisible porque cada desplazamiento cuesta al menos uno y las fichas
+> no pueden llegar con menos desplazamientos que su distancia Manhattan.
+> Es consistente porque una transición cambia esa suma como máximo en
+> una unidad y su costo es al menos uno.
+
+**Por qué A* expande menos nodos en las pruebas:**
+
+> UCS solo considera el costo pagado. A* añade una estimación de lo que
+> falta, por lo que orienta la exploración hacia la meta. En el ejemplo de
+> dos movimientos, UCS expande 11 nodos y A* expande 4; ambos obtienen una
+> ruta de dos movimientos y costo 6. En estos casos A* reduce las
+> expansiones; no afirmamos que siempre sea más rápido en cualquier problema.
+
+**Qué mostrar:** las filas UCS y A* del mismo ejemplo **2 movimientos**.
+Si usas el ejemplo de Manhattan de tres pasos, muéstralo en una diapositiva
+para no reemplazar accidentalmente la tabla del caso de dos pasos.
+
+No digas que se compararon varias heurísticas: el proyecto implementa
+únicamente Manhattan.
+
+### Bloque 5. Minimax con poda alfa-beta — 2 minutos
+
+**Cómo decide la máquina y qué función evalúa:**
+
+> La IA simula sus movimientos y las respuestas del rival. X maximiza la
+> utilidad y O la minimiza. La evaluación vale +10 si gana X, -10 si gana O
+> y 0 para empate o un estado sin ganador al límite de búsqueda. El límite
+> predeterminado de nueve turnos permite alcanzar los estados terminales
+> del juego. No se premian victorias más rápidas.
+
+**Cómo funciona la poda:**
+
+> Alfa guarda un límite para el maximizador y beta para el minimizador.
+> Cuando beta es menor o igual que alfa, las alternativas restantes del
+> nodo no pueden mejorar la decisión de los ancestros y se dejan de
+> explorar. La poda ahorra trabajo sin cambiar el valor de Minimax.
+
+Ejemplo conceptual: si X ya tiene una alternativa con valor 0, y al explorar
+otra alternativa O encuentra una respuesta con valor -10, ese nodo
+minimizador puede valer como máximo -10. X no preferirá esa alternativa sobre
+su 0, así que pueden omitirse las otras respuestas de O en ese nodo.
+
+**Qué mostrar y cuánto se ahorró:** con una partida nueva, coloca O en el
+centro y señala los contadores:
+
+| Sin poda | Con alfa-beta | Nodos evitados | Reducción |
+|---:|---:|---:|---:|
+| 55 504 | 6 138 | 49 366 | Aproximadamente 88,94 % |
+
+Los contadores suman las llamadas recursivas de todas las candidatas de esa
+decisión. La aplicación ejecuta **ambas búsquedas** para comparar nodos;
+por tanto, el ahorro de nodos de alfa-beta no equivale a una reducción del
+88,94 % del tiempo total de la aplicación.
+
+### Bloque 6. Comparación y conclusiones — 2 minutos
+
+**Qué mostrar:** la tabla del ejemplo **2 movimientos**, que resume:
+
+| Algoritmo | Nodos expandidos | Movimientos | Costo ponderado |
+|---|---:|---:|---:|
+| DFS | 30 | 30 | 68 |
+| BFS | 8 | 2 | 6 |
+| UCS | 11 | 2 | 6 |
+| A* | 4 | 2 | 6 |
+
+Señala también la columna de tiempo de la ventana. Es una medición en vivo,
+por lo que no tiene que coincidir con los tiempos del informe.
+La ventana **no mide memoria**; las cifras de memoria del informe se
+obtuvieron separadamente con `tracemalloc` y sus tiempos incluyen la
+sobrecarga de esa instrumentación.
+
+**Conclusión que puedes decir:**
+
+> Aprendimos que la estructura de la frontera cambia el orden de búsqueda
+> y la calidad de la solución. BFS minimiza movimientos; UCS minimiza
+> costos; A* incorpora una heurística justificada para orientar la búsqueda.
+> DFS es útil para ilustrar la exploración en profundidad, pero puede hallar
+> rutas muy largas. En el juego adversario, alfa-beta conserva la decisión
+> de Minimax evitando ramas innecesarias.
+>
+> Probamos tres casos y no generalizamos los tiempos a todas las entradas.
+> Como mejoras proponemos ampliar las pruebas a tableros difíciles, controlar
+> mejor los estados pendientes y comparar heurísticas adicionales.
+
+### Lista breve para preparar la presentación
+
+- Comprueba antes de clase que `py interfaz.py` abre la ventana.
+- Ensaya la secuencia: BFS con **3 movimientos**, comparación con
+  **2 movimientos**, y O en el centro de una partida nueva.
+- Conserva capturas y la tabla del [informe](./informe_proyecto_1.md) como
+  respaldo si falla la demostración.
+- Distingue siempre **nodos**, **movimientos**, **costo** y **tiempo**.
+- No atribuyas a la interfaz mediciones de memoria ni optimizaciones que
+  todavía no están implementadas.
