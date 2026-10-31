@@ -106,8 +106,16 @@ Escribe el número de la opción y presiona **Enter**.
    - `3`: UCS
    - `4`: A*
    - `5`: volver al menú principal
+   - `6`: comparar los cuatro algoritmos sin mostrar tableros ni rutas
 3. La aplicación muestra el camino, el tablero inicial y cada tablero
    resultante de los movimientos, además de las métricas de búsqueda.
+
+Para comparar desde consola, ejecuta `py main.py`, selecciona `1` y luego
+`6`. Se ejecutan DFS, BFS, UCS y A* sobre el mismo tablero inicial y se muestra
+solo una tabla de resultados: nodos expandidos, tiempo, movimientos y costo
+ponderado. El tiempo excluye la comprobación posterior de cada ruta.
+La comparación no imprime los tableros ni las listas de acciones, incluso
+si DFS encuentra una ruta muy larga. La opción `5` continúa siendo Volver.
 
 El tablero inicial de prueba se define en `main.py`, en la línea que crea
 `EstadoPuzzle`. Puedes cambiar esa tupla por cualquier permutación válida de

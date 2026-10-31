@@ -118,9 +118,6 @@ class Aplicacion:
         ttk.Label(ventana, text="Laboratorio de búsqueda", style="Title.TLabel").pack(
             anchor="w", padx=24, pady=(18, 4)
         )
-        ttk.Label(
-            ventana, text="Explora algoritmos, observa sus pasos y compara resultados."
-        ).pack(anchor="w", padx=24, pady=(0, 12))
         pestañas = ttk.Notebook(ventana)
         pestañas.pack(fill="both", expand=True, padx=20)
         puzzle = ttk.Frame(pestañas, padding=16)
@@ -406,8 +403,16 @@ class Aplicacion:
         ttk.Label(
             marco, text="Haz clic en una casilla libre. La persona comienza."
         ).pack(anchor="w", pady=8)
-        tablero = ttk.Frame(marco)
-        tablero.pack(pady=12)
+        espacio_juego = ttk.Frame(marco)
+        espacio_juego.pack(pady=12)
+        lateral = ttk.Frame(espacio_juego, width=260)
+        lateral.pack(side="left", fill="y", padx=(0, 20))
+        lateral.pack_propagate(False)
+        self.boton(lateral, "Nueva partida", self.nueva_partida).pack(
+            anchor="w", pady=8
+        )
+        tablero = ttk.Frame(espacio_juego)
+        tablero.pack(side="left")
         self.casillas_juego: list[tk.Button] = []
         for indice in range(9):
             boton = tk.Button(
@@ -419,9 +424,12 @@ class Aplicacion:
             self.casillas_juego.append(boton)
         self.detalle_juego = tk.StringVar(value="Tu turno.")
         self.metricas_juego = tk.StringVar(value="Las métricas aparecerán después del turno de la IA.")
-        ttk.Label(marco, textvariable=self.detalle_juego).pack(pady=8)
-        ttk.Label(marco, textvariable=self.metricas_juego, justify="center").pack(pady=8)
-        self.boton(marco, "Nueva partida", self.nueva_partida).pack(pady=8)
+        ttk.Label(
+            lateral, textvariable=self.detalle_juego, wraplength=250
+        ).pack(anchor="w", pady=8)
+        ttk.Label(
+            lateral, textvariable=self.metricas_juego, justify="left", wraplength=250
+        ).pack(anchor="w", pady=8)
 
     def jugar(self, indice):
         if self.ocupada or es_terminal(self.tablero_juego) or self.tablero_juego[indice] != " ":

@@ -80,6 +80,46 @@ def imprimir_resultados(camino, nodos_expandidos, costo, tiempo_ejecucion,
     print(f"Tiempo de ejecución: {tiempo_ejecucion:.6f} segundos")
 
 
+def comparar_algoritmos(estado_inicial):
+    """Compara las búsquedas sobre el mismo tablero sin imprimir sus rutas."""
+    algoritmos = [
+        ("DFS", ejecutar_dfs),
+        ("BFS", ejecutar_bfs),
+        ("UCS", ejecutar_ucs),
+        ("A*", ejecutar_a_star),
+    ]
+    print("\nComparación de los cuatro algoritmos:")
+    print(f"{'Algoritmo':<12} {'Nodos expandidos':>17} {'Tiempo (s)':>14} "
+          f"{'Movimientos':>14} {'Costo ponderado':>17}")
+    for nombre, ejecutar in algoritmos:
+        inicio = time.perf_counter()
+        camino, nodos, _ = ejecutar(EstadoPuzzle(estado_inicial.tablero))
+        segundos = time.perf_counter() - inicio
+        if camino is None:
+            print(f"{nombre:<12} {nodos:>17} {segundos:>14.6f} "
+                  f"{'Sin solución':>14} {'N/A':>17}")
+            continue
+
+        # Reproduce la ruta sin mostrarla para comparar también el costo de DFS/BFS.
+        tablero = estado_inicial.tablero
+        costo = 0
+        for accion in camino:
+            siguiente = next(
+                (estado for estado in EstadoPuzzle(tablero).generar_sucesores()
+                 if estado.accion == accion),
+                None,
+            )
+            if siguiente is None:
+                raise ValueError(f"{nombre} devolvió un movimiento ilegal: {accion!r}.")
+            costo += siguiente.costo_acumulado
+            tablero = siguiente.tablero
+        if not EstadoPuzzle(tablero).es_meta():
+            raise ValueError(f"La ruta devuelta por {nombre} no alcanza la meta.")
+        print(f"{nombre:<12} {nodos:>17} {segundos:>14.6f} "
+              f"{len(camino):>14} {costo:>17}")
+    print("El tiempo mide solo la búsqueda; excluye la comprobación de la ruta.")
+
+
 def menu_un_agente():
     print("\n--- MODO 8-PUZZLE ---")
     print("1. Búsqueda en Profundidad (DFS)")
@@ -87,10 +127,11 @@ def menu_un_agente():
     print("3. Búsqueda de Costo Uniforme (UCS)")
     print("4. Búsqueda A* (Informada)")
     print("5. Volver")
+    print("6. Comparar los cuatro algoritmos (solo resultados)")
     
     opcion = input("Elige el algoritmo a ejecutar: ")
     
-    if opcion in ["1", "2", "3", "4"]:
+    if opcion in ["1", "2", "3", "4", "6"]:
         # Cambia esta tupla para probar otro tablero (0 representa el vacío).
         estado_inicial = EstadoPuzzle(tablero=(6, 2, 4, 0, 3, 5, 7, 8, 1))
 
@@ -102,6 +143,10 @@ def menu_un_agente():
                 "el conteo debe ser par. Cambia el tablero por otra "
                 "configuración resoluble."
             )
+            return
+
+        if opcion == "6":
+            comparar_algoritmos(estado_inicial)
             return
         
         print("\nCalculando solución...")
